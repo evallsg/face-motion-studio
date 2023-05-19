@@ -15,3 +15,5 @@ A character animation tool utilizing different face tracking technologies.
    
    **Requirements:**
    - Webcam
+   
+[Demo](data/videos/)
