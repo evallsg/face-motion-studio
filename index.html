@@ -1,0 +1,46 @@
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <style>
+            html, body { width:100%; height:100%; margin:0; padding:0; overflow:hidden; }
+        </style>
+		<link rel="stylesheet" href="https://use.fontawesome.com/releases/v6.3.0/css/all.css">
+        <link rel="stylesheet" href="css/litegui.css">
+        <link rel="stylesheet" href="css/main.css">
+        <link rel="shortcut icon" type="image/x-icon" href="https://webglstudio.org/users/evalls/imgs/logo.png" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" rel="stylesheet" />
+
+    </head>
+    <body>
+        <div id="loading" class="modal hidden" style="background-color:rgba(51, 51, 51, 0.5); position: absolute; width: 100%; height: 100%; 
+                 justify-content: center; align-items: center; z-index: 100; color: white; font-size: larger;">
+			<p>Loading avatar, please wait</p>
+		</div>
+
+        <div id="capture" class="hidden" draggable="false">
+			<div id="capture-area" class="flex-horizontal" style ="width: 100%;">
+				<div id="video-area" class="flex-vertical">
+					<video id="input-video"></video>
+                    <video id="recording" class="hidden"></video>	
+				</div>
+			</div>
+		</div>
+        <div id="buttons-container" class="flex-vertical right-container"></div>
+        <canvas id="threejs-canvas"></canvas>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+        <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+
+        <script type="importmap">
+			{
+				"imports": {
+					"three": "https://cdn.skypack.dev/three@0.136"
+				}
+			}
+		</script>
+        <script type="text/javascript" src="js/libs/litegui.js"></script>
+        <script src="./js/libs/liveLinkParser/stream.js" ></script>
+        <script src="./js/libs/liveLinkParser/liveLinkParser.js" ></script>
+        <script src="./js/app.js" type="module"></script>
+    </body>
+</html>

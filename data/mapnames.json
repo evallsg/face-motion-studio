@@ -1,0 +1,227 @@
+{
+    "livelink2AU" : {
+        "EyeBlinkLeft": { "name": "Blink_Left", "code": "AU45L" },
+        "EyeLookDownLeft": { "name": "Eyes_Down_Left", "code": "AU64L" },
+        "EyeLookInLeft": { "name": "Eyes_Turn_Right_Left", "code": "AU62L" },
+        "EyeLookOutLeft": { "name": "Eyes_Turn_Left_Left", "code": "AU61L" },
+        "EyeLookUpLeft": { "name": "Eyes_Up_Left", "code": "AU63L" },
+        "EyeSquintLeft": { "name": "Squint_Left", "code": "AU44L" },
+        "EyeWideLeft": { "name": "Upper_Lid_Raiser_Left", "code": "AU5L" },
+
+        "EyeBlinkRight": { "name": "Blink_Right", "code": "AU45R" },
+        "EyeLookDownRight": { "name": "Eyes_Down_Right", "code": "AU64R" },
+        "EyeLookInRight": { "name": "Eyes_Turn_Right_Left", "code": "AU62R" },
+        "EyeLookOutRight": { "name": "Eyes_Turn_Left_Right", "code": "AU61R" },
+        "EyeLookUpRight": { "name": "Eyes_Up_Right", "code": "AU63R" },
+        "EyeSquintRight": { "name": "Squint_Right", "code": "AU44R" },
+        "EyeWideRight": { "name": "Upper_Lid_Raiser_Right", "code": "AU5R" },
+
+        "JawForward": { "name": "Jaw_Thrust", "code": "AU29" },
+        "JawLeft": { "name": "Jaw_Sideways_Left", "code": "AU30L" },
+        "JawRight": { "name": "Jaw_Sideways_Right", "code": "AU30R" },
+        "JawOpen": { "name": "Jaw_Drop", "code": "AU26" },
+
+        "MouthClose": { "name": "Mouth_Close", "code": null },
+        "MouthFunnel": { "name": "Lip_Funneler", "code": "AU22" },
+        "MouthPucker": { "name": "Lip_Puckerer", "code": "AU18" },
+        "MouthRight": { "name": "Mouth_Right", "code": null, "info": "no AU" }, 
+        "MouthLeft": { "name": "Mouth_Left", "code": null, "info": "no AU" }, 
+        "MouthSmileLeft": { "name": "Lip_Corner_Puller_Left", "code": "AU12L" },
+        "MouthSmileRight": { "name": "Lip_Corner_Puller_Right", "code": "AU12R" },
+        "MouthFrownLeft": { "name": "Lip_Corner_Depressor_Left", "code": "AU15L" },
+        "MouthFrownRight": { "name": "Lip_Corner_Depressor_Right", "code": "AU15R" },
+        "MouthDimpleLeft": { "name": "Dimpler_Left", "code": "AU14L" },
+        "MouthDimpleRight": { "name": "Dimpler_Right", "code": "AU14R" },
+        "MouthStretchLeft": { "name": "Lip_Stretcher_Left", "code": "AU20L" },
+        "MouthStretchRight": { "name": "Lip_Stretcher_Right", "code": "AU20R" },
+
+        "MouthRollLower": { "name": "Lip_Suck", "code": "AU28D", "info": "no AU" }, 
+        "MouthRollUpper": { "name": "Lip_Suck", "code": "AU28T", "info": "no AU" }, 
+        "MouthShrugLower": { "name": "Mouth_Shrug_Lower", "code": null, "info": "no AU" }, 
+        "MouthShrugUpper": { "name": "Mouth_Shrug_Upper", "code": null, "info": "no AU" }, 
+        "MouthPressLeft": { "name": "Lip_Pressor_Left", "code": "AU24L" },
+        "MouthPressRight": { "name": "Lip_Pressor_Right", "code": "AU24R" },
+        "MouthLowerDownLeft": { "name": "Lower_Lip_Depressor_Left", "code": "AU16L" },
+        "MouthLowerDownRight": { "name": "Lower_Lip_Depressor_Right", "code": "AU16R" },
+        "MouthUpperUpLeft": { "name": "Upper_Lip_Raiser_Left", "code": "AU10L" },
+        "MouthUpperUpRight": { "name": "Upper_Lip_Raiser_Right", "code": "AU10R" },
+
+        "BrowDownLeft": { "name": "Brow_Lowerer_Left", "code": "AU4L" },
+        "BrowDownRight": { "name": "Brow_Lowerer_Right", "code": "AU4R" },
+        "BrowInnerUp": { "name": "Inner_Brow_Raiser", "code": "AU1" },
+        "BrowOuterUpLeft": { "name": "Outer_Brow_Raiser_Left", "code": "AU2L" },
+        "BrowOuterUpRight": { "name": "Outer_Brow_Raiser_Right", "code": "AU2R" },
+        
+        "CheekPuff": { "name": "Cheek_Puff", "code": "AU34" },
+        "CheekSquintLeft": { "name": "Cheek_Raiser_Left", "code": "AU6L" },
+        "CheekSquintRight": { "name": "Cheek Raiser_Rihgt", "code": "AU6R" },
+
+        "NoseSneerLeft": { "name": "Nose_Wrinkler_Left", "code": "AU9L" },
+        "NoseSneerRight": { "name": "Nose_Wrinkler_Right", "code": "AU9R" },
+
+        "TongueOut": { "name": "Tongue_Show", "code": "AU19" },
+
+        "HeadYaw": { "name": "Head_Yaw", "code": null, "info": "no AU, angle" },
+        "HeadPitch": { "name": "Head_Pith", "code": null, "info": "no AU, angle" }, 
+        "HeadRoll": { "name": "Head_Roll", "code": null, "info": "no AU, angle" }, 
+
+        "LeftEyeYaw": { "name": "Left_Eye_Yaw", "code": null, "info": "no AU, angle" }, 
+        "LeftEyePitch": { "name": "Left_Eye_Pitch", "code": null, "info": "no AU, angle" }, 
+        "LeftEyeRoll": { "name": "Left_Eye_Roll", "code": null, "info": "no AU, angle" }, 
+
+        "RightEyeYaw": { "name": "Right_Eye_Yaw", "code": null, "info": "no AU, angle" }, 
+        "RightEyePitch": { "name": "Right_Eye_Pitch", "code": null, "info": "no AU, angle" }, 
+        "RightEyeRoll": { "name": "Right_Eye_Roll", "code": null, "info": "no AU, angle" } 
+    },
+
+
+    "map_llnames" : { 
+        
+        "EVA" : {
+        "EyeBlinkLeft": "Blink_Left",
+        "EyeLookDownLeft": "Blink_Left",
+        "EyeLookInLeft": null,
+        "EyeLookOutLeft": null,
+        "EyeLookUpLeft": "EyesWide_Left",
+        "EyeSquintLeft": "Squint_Left",
+        "EyeWideLeft": "EyesWide_Left",
+
+        "EyeBlinkRight": "Blink_Right",
+        "EyeLookDownRight": "Blink_Right",
+        "EyeLookInRight": null,
+        "EyeLookOutRight": null,
+        "EyeLookUpRight": "EyesWide_Left",
+        "EyeSquintRight": "Squint_Right",
+        "EyeWideRight": "EyesWide_Left",
+
+        "JawForward": "JawForeward",
+        "JawLeft": "Jaw_Left",
+        "JawRight": "Jaw_Right",
+        "JawOpen": "MouthOpen",
+
+        "MouthClose": null,
+        "MouthFunnel": ["MouthWhistle_NarrowAdjust_Left", "MouthWhistle_NarrowAdjust_Right"],
+        "MouthPucker": ["MouthNarrow_Left", "MouthNarrow_Right"],
+        "MouthRight": "Midmouth_Right",
+        "MouthLeft": "Midmouth_Left",
+        "MouthSmileLeft": "Smile_Left",
+        "MouthSmileRight": "Smile_Right",
+        "MouthFrownLeft": "Frown_Left",
+        "MouthFrownRight": "Frown_Right",
+        "MouthDimpleLeft": "Smile_Left",
+        "MouthDimpleRight": "Smile_Right",
+        "MouthStretchLeft": null,
+        "MouthStretchRight": null,
+
+        "MouthRollLower": "LowerLipIn",
+        "MouthRollUpper": "UpperLipIn",
+        "MouthShrugLower": "LowerLipOut",
+        "MouthShrugUpper": "UpperLipOut",
+        "MouthPressLeft": null,
+        "MouthPressRight": null,
+        "MouthLowerDownLeft": "LowerLipDown_Left",
+        "MouthLowerDownRight": "LowerLipDown_Right",
+        "MouthUpperUpLeft": "UpperLipUp_Left",
+        "MouthUpperUpRight": "UpperLipUp_Right",
+
+        "BrowDownLeft": ["BrowsDown_Left", "BrowsIn_Left"],
+        "BrowDownRight": ["BrowsDown_Right", "BrowsIn_Right"],
+        "BrowInnerUp": ["BrowsOuterDown_Left", "BrowsOuterDown_Right"],
+        "BrowOuterUpLeft": "BrowsUp_Left",
+        "BrowOuterUpRight": "BrowsUp_Right",
+        
+        "CheekPuff": ["CheekPuff_Left", "CheekPuff_Right"],
+        "CheekSquintLeft": "CheekPuff_Left",
+        "CheekSquintRight": "CheekPuff_Right",
+        "NoseSneerLeft": "NoseScrunch_Left",
+        "NoseSneerRight": "NoseScrunch_Right",
+
+        "TongueOut": "TongueOut",
+
+        "HeadYaw": null,
+        "HeadPitch": null,
+        "HeadRoll": null,
+
+        "LeftEyeYaw": null,
+        "LeftEyePitch": null,
+        "LeftEyeRoll": null,
+
+        "RightEyeYaw": null,
+        "RightEyePitch": null,
+        "RightEyeRoll": null
+        },
+        "CLEO": {
+            "EyeBlinkLeft": "A14_Eye_Blink_Left",
+            "EyeLookDownLeft": "A08_Eye_Look_Down_Left",
+            "EyeLookInLeft": "A11_Eye_Look_In_Left",
+            "EyeLookOutLeft": "A10_Eye_Look_Out_Left",
+            "EyeLookUpLeft": "A06_Eye_Look_Up_Left",
+            "EyeSquintLeft": "A16_Eye_Squint_Left",
+            "EyeWideLeft": "A18_Eye_Wide_Left",
+        
+            "EyeBlinkRight": "A15_Eye_Blink_Right",
+            "EyeLookDownRight": "A09_Eye_Look_Down_Right",
+            "EyeLookInRight": "A12_Eye_Look_In_Right",
+            "EyeLookOutRight": "A13_Eye_Look_Out_Right",
+            "EyeLookUpRight": "A07_Eye_Look_Up_Right",
+            "EyeSquintRight": "A17_Eye_Squint_Right",
+            "EyeWideRight": "A19_Eye_Wide_Right",
+        
+            "JawForward": "A26_Jaw_Forward",
+            "JawLeft": "A27_Jaw_Left",
+            "JawRight": "A28_Jaw_Right",
+            "JawOpen": "Mouth_Open",
+        
+            "MouthClose": "A37_Mouth_Close",
+            "MouthFunnel": "A29_Mouth_Funnel",
+            "MouthPucker": "A30_Mouth_Pucker",
+            "MouthRight": "A32_Mouth_Right",
+            "MouthLeft": "A31_Mouth_Left",
+            "MouthSmileLeft": "A38_Mouth_Smile_Left",
+            "MouthSmileRight": "A39_Mouth_Smile_Right",
+            "MouthFrownLeft": "A40_Mouth_Frown_Left",
+            "MouthFrownRight": "A41_Mouth_Frown_Right",
+            "MouthDimpleLeft": "A42_Mouth_Dimple_Left",
+            "MouthDimpleRight": "A43_Mouth_Dimple_Right",
+            "MouthStretchLeft": "A50_Mouth_Stretch_Left",
+            "MouthStretchRight": "A51_Mouth_Stretch_Right",
+        
+            "MouthRollLower": "A34_Mouth_Roll_Lower",
+            "MouthRollUpper": "A33_Mouth_Roll_Upper",
+            "MouthShrugLower": "A36_Mouth_Shrug_Lower",
+            "MouthShrugUpper": "A35_Mouth_Shrug_Upper",
+            "MouthPressLeft": "A48_Mouth_Press_Left",
+            "MouthPressRight": "A49_Mouth_Press_Right",
+            "MouthLowerDownLeft": "A46_Mouth_Lower_Down_Left",
+            "MouthLowerDownRight": "A47_Mouth_Lower_Down_Right",
+            "MouthUpperUpLeft": "A44_Mouth_Upper_Up_Left",
+            "MouthUpperUpRight": "A45_Mouth_Upper_Up_Right",
+        
+            "BrowDownLeft": "A02_Brow_Down_Left",
+            "BrowDownRight": "A03_Brow_Down_Right",
+            "BrowInnerUp": "A01_Brow_Inner_Up",
+            "BrowOuterUpLeft": "A04_Brow_Outer_Up_Left",
+            "BrowOuterUpRight": "A05_Brow_Outer_Up_Right",
+            
+            "CheekPuff": "A20_Cheek_Puff",
+            "CheekSquintLeft": "A21_Cheek_Squint_Left",
+            "CheekSquintRight": "A22_Cheek_Squint_Right",
+            "NoseSneerLeft": "A23_Nose_Sneer_Left",
+            "NoseSneerRight": "A24_Nose_Sneer_Right",
+        
+            "TongueOut": "A52_Tongue_Out",
+        
+            "HeadYaw": null,
+            "HeadPitch": null,
+            "HeadRoll": null,
+        
+            "LeftEyeYaw": null,
+            "LeftEyePitch": null,
+            "LeftEyeRoll": null,
+        
+            "RightEyeYaw": null,
+            "RightEyePitch": null,
+            "RightEyeRoll": null
+        }
+    }
+}
