@@ -18,4 +18,4 @@ Try the [demo](https://webglstudio.org/users/evalls/projects/face-motion-studio/
    **Requirements:**
    - Webcam
    
-[Demo](data/videos/)
+
