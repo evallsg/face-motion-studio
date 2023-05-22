@@ -1,3 +1,4 @@
+import * as THREE from 'three'
 class GUI {
     constructor(map_names) {
         this.create();
@@ -17,7 +18,8 @@ class GUI {
         let character = app.character;
         let mode = app.mode == app.modes.LIVE ? "Live" : "Record";
         let approach = app.approach == app.approaches.LIVELINK ? "Live Link" : "Mediapipe";
-
+        let file = null;
+    
         LiteGUI.init();
 
         let dialog = new LiteGUI.Dialog({ title: "Settings", width: 300, height: 350, closable: true, on_close:null, scroll: false});
@@ -25,11 +27,29 @@ class GUI {
         dialog.refresh = () => {
 
             dialog.content.innerHTML = "";
-            dialog = this.addChoice("Choose character", Object.keys(app.characters), {value: character, callback: (v) => {
+            dialog = this.addChoice("Choose character", [...Object.keys(app.characters), "From disk"], {value: character, callback: (v) => {
                 character = v;
                 dialog.refresh();
             }, dialog: dialog});
-    
+            
+            let inspector = new LiteGUI.Inspector();
+            if(character == "From disk") {
+
+                inspector.addFile("Import from disk", file || null, {callback: (v) => {
+                    if(v) {
+                        let extension = v.name.split(".")[1];
+                        if(extension == "glb" || extension == "gltf")
+                            file = v;   
+                        else
+                            alert("Only accepts glb or gltf formats")
+                    }
+                    // character = v.name;
+                    dialog.refresh();
+                }});
+
+                dialog.content.appendChild(inspector.root);
+            }
+
             dialog = this.addChoice("Choose mode", ["Live", "Record"], { value: mode, callback: (v) => {
                 mode = v;
                 dialog.refresh();
@@ -40,7 +60,7 @@ class GUI {
                 dialog.refresh();
             }, dialog: dialog});
             
-            let inspector = new LiteGUI.Inspector();
+            inspector = new LiteGUI.Inspector();
             
             if(approach == "Live Link") {
     
@@ -57,18 +77,27 @@ class GUI {
             }})
     
             dialog.add(inspector);
+            dialog.adjustSize();
+            LiteGUI.createDropArea(dialog.root, (v)=> {
+                if(v.dataTransfer.files && v.dataTransfer.files.length) {
+                    character = "From disk";
+                    file = v.dataTransfer.files[0];
+                    dialog.refresh();
+                }
+            })
         }
         dialog.refresh();
         let btn = dialog.addButton("Save", {callback: (v) => {
             dialog.close();
             if(callback)
-                callback({device, applyRotation, character, mode, approach});
+                callback({device, applyRotation, character, mode, approach, file});
         }})
         
         btn.style.width = "20%";
         btn.style["font-size"] = "small";
         dialog.show();
-        
+
+
         // let choice = LiteGUI.choice(title, values, (v) => {
         //     options.callback(v, applyRotation);
         // })
@@ -179,9 +208,12 @@ class GUI {
         i.addEventListener("click", () => this.changeCaptureGUIVisivility(i.classList.contains("fa-circle-chevron-right")) );
         //videoArea.appendChild(i);
 
-        let inspector = this.createBlendShapesInspector(this.mapNames[character]);
         mainCapture.appendChild(i);
-        mainCapture.appendChild(inspector.root)
+        if(!this.mapNames[character]) {
+            let inspector = this.createBlendShapesInspector(this.mapNames[character]);
+            mainCapture.appendChild(inspector.root)
+
+        }
         videoArea.appendChild(buttonContainer);
     }
 
@@ -356,7 +388,7 @@ class GUI {
         this.createIcons();
         this.makeDraggableVideo();
         //create the dialog paenel
-        var dialog = new LiteGUI.Dialog({id: "settings-panel",  title:"GUI", width: "fit-content", minWidth: 200, close: false, scroll: false, draggable: true, resizable: true});
+        var dialog = new LiteGUI.Dialog({id: "settings-panel",  title:"Settings", width: "fit-content", minWidth: 250, close: false, scroll: false, draggable: true, resizable: true});
     
         //add some widgets
         var widgets = new LiteGUI.Inspector({scroll:true, height: "inherit"});
@@ -412,9 +444,28 @@ class GUI {
         dialog.root.style["max-height"] = "calc(100vh - 20px)";
         dialog.root.style.width = "auto";
 
-        let section = widgets.addSection("Weights", {collapsed: true, height: "100%", callback: (v) =>{
+        let inspector = new LiteGUI.Inspector();
+        inspector.addSection("Transforms", {collapsed: true, height: "100%", callback: (v) =>{
             if(v) {
-                dialog.content.style.height = "calc(100% - 20px)";
+                dialog.root.style.width = "fit-content";
+            }
+            else {
+                dialog.root.style.width = "auto";
+                dialog.adjustSize();
+            }
+        }});
+
+        inspector.addVector3("Rotation", [app.model.rotation.x * THREE.MathUtils.RAD2DEG, app.model.rotation.y * THREE.MathUtils.RAD2DEG, app.model.rotation.z * THREE.MathUtils.RAD2DEG], { callback: (v) => {
+            app.model.rotation.x = v[0] * THREE.MathUtils.DEG2RAD;
+            app.model.rotation.y = v[1] * THREE.MathUtils.DEG2RAD;
+            app.model.rotation.z = v[2] * THREE.MathUtils.DEG2RAD;
+        }});
+        
+
+        //inspector = new LiteGUI.Inspector();
+        let section = inspector.addSection("Weights", {collapsed: true, height: "100%", callback: (v) =>{
+            if(v) {
+               // dialog.content.style.height = "calc(100% - 20px)";
                 section.children[1].style.display = "flex";
                 dialog.root.style.width = "fit-content";
                 dialog.root.style.height = "inherit";
@@ -429,8 +480,10 @@ class GUI {
         section.style["margin-top"] = "10px";
         //section.children[1].style.display = "flex";
         section.children[1].style["flex-wrap"] =  "wrap";
-        let inspector = this.createBlendShapesInspector(this.mapNames[app.character], widgets);
-        inspector.root.hidden = false
+        inspector = this.createBlendShapesInspector(this.mapNames[app.character], inspector);
+        inspector.root.hidden = false;
+        dialog.add(inspector);
+
         //show and ensure the content fits
         dialog.show();
         dialog.setPosition(10, 10);
@@ -481,6 +534,31 @@ class GUI {
 
         widgets.addButton(null, "Download", {callback: () => {callback({filename, format})}});
         dialog.show();
+    }
+
+    showAutomapDialog(map_names, blendshapes, callback) {
+        //create the dialog paenel
+        var dialog = new LiteGUI.Dialog({title:"Map blendshapes", width: "fit-content", heigth: "calc(100% - 20px)", close: false, scroll: true, draggable: true, resizable: true});
+                    
+        //add some widgets
+        var widgets = new LiteGUI.Inspector({scroll: true, width: "calc(100% - 100px)", height: "calc(100% - 40px)"});
+        widgets.root.style.display = "flex";
+        widgets.root.style["flex-wrap"] = "wrap";
+
+        for(let name in map_names) {
+            widgets.addCombo(name, map_names[name], {values: [null, ...blendshapes], callback: (v) => {
+                map_names[name] = v;
+            }});
+        }
+
+        dialog.addButton("Save", { close: true, callback: (v) => {
+            if(callback)
+                callback(map_names);
+        }});
+        dialog.add(widgets);
+        dialog.show();
+        dialog.setPosition(10, 10);
+        dialog.adjustSize();
     }
 
     makeDraggableVideo() {

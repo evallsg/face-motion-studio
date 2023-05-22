@@ -12,7 +12,9 @@ const { FaceLandmarker, FilesetResolver } = vision;
 
 import { RGBELoader } from "https://cdn.skypack.dev/three@0.136/examples/jsm/loaders/RGBELoader.js"
 
-import MapNames from '../data/mapnames.json' assert { type: 'json' };
+// import MapNames from '../data/mapnames.json' assert { type: 'json' };
+
+const MapNames = await import('../data/mapnames.json', {assert: { type: 'json' }});
 
 // Correct negative blenshapes shader of ThreeJS
 THREE.ShaderChunk[ 'morphnormal_vertex' ] = "#ifdef USE_MORPHNORMALS\n	objectNormal *= morphTargetBaseInfluence;\n	#ifdef MORPHTARGETS_TEXTURE\n		for ( int i = 0; i < MORPHTARGETS_COUNT; i ++ ) {\n	    objectNormal += getMorph( gl_VertexID, i, 1, 2 ) * morphTargetInfluences[ i ];\n		}\n	#else\n		objectNormal += morphNormal0 * morphTargetInfluences[ 0 ];\n		objectNormal += morphNormal1 * morphTargetInfluences[ 1 ];\n		objectNormal += morphNormal2 * morphTargetInfluences[ 2 ];\n		objectNormal += morphNormal3 * morphTargetInfluences[ 3 ];\n	#endif\n#endif";
@@ -62,7 +64,7 @@ class App {
 
         this.onSceneLoaded = null;
 
-        this.gui = new GUI(MapNames.map_llnames);
+        this.gui = new GUI(MapNames.default.map_llnames);
         this.gui.onStartRecord = this.startRecord.bind(this);
         this.gui.onStopRecord = this.stopRecord.bind(this);
         
@@ -125,7 +127,7 @@ class App {
 
     async initMediapipe() {
 
-
+        this.video = document.getElementById("input-video");
         const filesetResolver = await FilesetResolver.forVisionTasks(
             'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.0/wasm'
         );
@@ -153,9 +155,11 @@ class App {
             });
         
        
-            if(!this.mediaDevicesSupported(video, ()=> { })) {
-                console.log("This app is not supported in your browser");
-            }
+            this.mediaDevicesSupported(video, ()=> { }, (err) => {
+                if(!err)
+                    err = "This app is not supported in your browser";
+                console.error(err);
+            });
         }
         
     }
@@ -182,6 +186,8 @@ class App {
             this.applyRotation = data.applyRotation;
             this.character = data.character;
             this.device = data.device;
+            this.fileFromDisk = data.file;
+
             this.approach = this.approaches.MEDIAPIPE;
 
             if(data.approach == "Live Link") {
@@ -217,15 +223,17 @@ class App {
             video.currentTime = video.startTime > 0 ? video.startTime : 0;
         });
         
-        if(!this.mediaDevicesSupported(video, ()=> { this.gui.createCaptureGUI( this.character )})) {
-            console.log("This app is not supported in your browser");
-        }
+        this.mediaDevicesSupported(video, ()=> { this.gui.createCaptureGUI( this.character )}, (err) => {
+            if(!err)
+                err = "This app is not supported in your browser";
+            console.error(err);
+        });
     
         // this.update(0);
         this.onSceneLoaded = (v) => { this.processWeights(); this.gui.createExportPanel(this.export.bind(this))};
     }
     
-    mediaDevicesSupported(video, callback) {
+    async mediaDevicesSupported(video, callback, on_error) {
         
         // prepare the device to capture the video
         if (navigator.mediaDevices) {
@@ -236,7 +244,7 @@ class App {
                 height: { min: 776, ideal: 720, max: 1080 }
               }, audio: false };
 
-            navigator.mediaDevices.getUserMedia(constraints).then( (stream) => {
+            await navigator.mediaDevices.getUserMedia(constraints).then( (stream) => {
 
                 
                 let videoElement = this.video = document.getElementById("input-video");
@@ -270,10 +278,13 @@ class App {
             })
             .catch(function (err) {
                 console.error("The following error occurred: " + err);
+                if(on_error)
+                    on_error(err);
             });
         }
         else {
-            return false;
+            if(on_error)
+                on_error();
         }
     }
 
@@ -333,9 +344,18 @@ class App {
 
         this.renderer.render( this.scene, this.camera );
         
-  
-        this.loadCharacter(callback); 
+        if(this.character == "From disk" && this.fileFromDisk) {
 
+            let reader = new FileReader();
+            reader.onload =  (event) => {
+                this.characters[this.character] = event.target.result;
+                this.loadCharacter( callback, {automap: true}); 
+            };
+            reader.readAsDataURL(this.fileFromDisk);
+        } else {
+            this.loadCharacter(callback); 
+        }
+  
 
         window.addEventListener( 'resize', this.onWindowResize.bind(this) );
         document.addEventListener( 'keydown', this.onKeyDown.bind(this) );
@@ -378,17 +398,23 @@ class App {
 
     }
 
-    loadCharacter(callback) {
+    loadCharacter(callback, options) {
         
+        let automap = false;
+        if(options) {
+            automap = options.automap;
+        }
         // Load the model
         if(this.scene){
-            let allLoaded = true;
+            let allLoaded = false;
             for(let c in this.characters)
             {
                 let character = this.scene.getObjectByName(c);
                 if(c == this.character){
-                    if(character)
+                    if(character) {
+                        allLoaded = true;
                         character.visible = true;
+                    }
                     else
                         allLoaded = false;
                 }
@@ -402,7 +428,8 @@ class App {
                 return;    
         }
         this.gui.changeModalState(true);
-        this.loaderGLB.load( this.characters[this.character], (glb) => {
+
+        this.loaderGLB.load( this.characters[this.character] , (glb) => {
 
             this.model = glb.scene;
             this.model.name = this.character;
@@ -410,6 +437,8 @@ class App {
             //this.model.position.set(0, 0.75, 0);
             //this.model.scale.set(8.0, 8.0, 8.0);
             this.skinnedMeshes = [];
+            let blendshapes = [];
+
             this.model.traverse( object => {
                 if ( object.isMesh || object.isSkinnedMesh ) {
                     object.material.side = THREE.FrontSide;
@@ -422,20 +451,40 @@ class App {
                         object.material.emissiveIntensity = 0;
                     }
                     if(object.material.map) object.material.map.anisotropy = 16; 
-                    if(object.morphTargetDictionary)
+                    if(object.morphTargetDictionary) {
                         this.skinnedMeshes.push(object);
+                        if(automap)
+                            blendshapes = [...blendshapes, ...Object.keys(object.morphTargetDictionary)];
+                    }
                     object.material.environment = this.hdrTexture;
                 } else if (object.isBone) object.scale.set(1.0, 1.0, 1.0);
-            } );    
+            });    
 
             this.scene.add(this.model);
 
-            if(callback)
-                callback();
-            if(this.onSceneLoaded)
-                this.onSceneLoaded();
-
             this.gui.changeModalState(false);
+
+            if(automap) {
+                MapNames.default.map_llnames[this.character] = this.autoMapBlendhsapes(blendshapes);
+                this.gui.showAutomapDialog( MapNames.default.map_llnames[this.character], blendshapes, (map) => {
+                    
+                    MapNames.default.map_llnames[this.character] = map;
+                    if(callback)
+                        callback();
+            
+                    if(this.onSceneLoaded)
+                        this.onSceneLoaded();
+                } );
+
+            } else {
+                if(callback)
+                    callback();
+            
+                if(this.onSceneLoaded)
+                    this.onSceneLoaded();
+
+            }
+  
             // this.mixer = new THREE.AnimationMixer( this.model );
             // this.loaderGLB.load( './data/anim/idle.glb', (glb) => {
 
@@ -490,6 +539,15 @@ class App {
                     packet.blends[name] = blendshape.score;
 
                 }
+                
+                if(packet.blends["LeftEyeYaw"] == null);
+                {
+                    packet.blends["LeftEyeYaw"] = (packet.blends["EyeLookOutLeft"] - packet.blends["EyeLookInLeft"])/2;
+                    packet.blends["RightEyeYaw"] = - (packet.blends["EyeLookOutRight"] - packet.blends["EyeLookInRight"])/2;
+                    packet.blends["LeftEyePitch"] = (packet.blends["EyeLookDownLeft"] - packet.blends["EyeLookUpLeft"])/2;
+                    packet.blends["RightEyePitch"] = (packet.blends["EyeLookDownRight"] - packet.blends["EyeLookUpRight"])/2;
+                }
+
             }
 
             if ( results.facialTransformationMatrixes.length > 0 ) {
@@ -520,6 +578,7 @@ class App {
             this.animate(delta);
         else if(packet) {
             this.bsData.dt.push(delta)
+            
             this.bsData.weights.push(packet.blends);
         }
         
@@ -567,7 +626,7 @@ class App {
             for(let i in weights[idx])
             {
                 var value = weights[idx][i];
-                let map = MapNames.map_llnames[this.character][i];
+                let map = MapNames.default.map_llnames[this.character][i];
                 if(map == null) 
                 {
                     if(!this.applyRotation) 
@@ -774,18 +833,10 @@ class App {
         let eyelashes = this.model.getObjectByName("Eyelashes");
         let mt = body.morphTargetDictionary;
 
-        if(blends["LeftEyeYaw"] == null);
-        {
-            blends["LeftEyeYaw"] = (blends["EyeLookOutLeft"] - blends["EyeLookInLeft"])/2;
-            blends["RightEyeYaw"] = - (blends["EyeLookOutRight"] - blends["EyeLookInRight"])/2;
-            blends["LeftEyePitch"] = (blends["EyeLookDownLeft"] - blends["EyeLookUpLeft"])/2;
-            blends["RightEyePitch"] = (blends["EyeLookDownRight"] - blends["EyeLookUpRight"])/2;
-        }
-
         for(let i in blends)
             {
                 var value = blends[i];
-                let map = MapNames.map_llnames[this.character][i];
+                let map = MapNames.default.map_llnames[this.character][i];
                 if(map == null) 
                 {
                     if(!this.applyRotation) 
@@ -885,6 +936,41 @@ class App {
                 }
               
             }   
+    }
+
+    autoMapBlendhsapes(blendshapes) {
+        
+        let bs_map = Object.assign({}, MapNames.default.livelink2AU);
+        for(let name in bs_map) {
+            bs_map[name] = null;
+            let idx = blendshapes.indexOf(name);
+            
+            // it has the same name
+            if(idx > -1) {
+                bs_map[name] = blendshapes[idx];
+            }
+            else {
+                let split = name.replaceAll("_", "").replaceAll(/[0-9]/g, "").match(/[A-Z][a-z]+/g);
+                let bs = blendshapes.map((x) => x.replaceAll("_", "").replaceAll(/[0-9]/g, "").match(/[A-Z][a-z]+/g));
+                
+                // go though all character blendshapes and compare all words with the live link blendshape name words
+                for(let i = 0; i < bs.length; i++) {
+                    let split_bs = bs[i];
+                    let found = [];
+                    for(let j = 0; j < split_bs.length; j++ ) {
+                        let id = split.indexOf(split_bs[j]);
+                        if(id > -1 )
+                            found.push(id);
+                    }
+
+                    if(found.length == split_bs.length){
+                        bs_map[name] = blendshapes[i];
+                        break;
+                    }
+                }
+            }
+        }
+        return bs_map;
     }
 
     export(data) {
