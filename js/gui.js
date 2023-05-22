@@ -44,6 +44,8 @@ class GUI {
             
             if(approach == "Live Link") {
     
+
+                inspector.addInfo("Target IP", "178.79.158.38:11111", {})
                 inspector.addString("Device name", device, {callback: (v)=> {
                     device = v;
                     

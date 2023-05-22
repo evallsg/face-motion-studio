@@ -104,7 +104,10 @@ class App {
                     prev_data = last_data;
                 last_data = data;
                 stream.copyFrom(data);
-                packet = parseLiveLinkPacket(stream,{});
+                let parsed_data = parseLiveLinkPacket(stream,{});
+                if(this.device == parsed_data.name)
+                    packet = parsed_data;
+                
             }
             else{
                 console.log("serve msg:", msg.data);
