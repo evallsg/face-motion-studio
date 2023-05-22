@@ -493,9 +493,9 @@ class GUI {
 
         let videoArea = document.getElementById("video-area");
         videoArea.classList.add("thumbnail");
+        videoArea.classList.add("mirror");
         let video = document.getElementById("input-video");
         video.classList.add("thumbnail");
-        video.classList.add("mirror");
 
     }
 

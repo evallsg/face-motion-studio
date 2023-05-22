@@ -107,7 +107,7 @@ class App {
                 let parsed_data = parseLiveLinkPacket(stream,{});
                 if(this.device == parsed_data.name)
                     packet = parsed_data;
-                
+
             }
             else{
                 console.log("serve msg:", msg.data);
@@ -773,6 +773,14 @@ class App {
         if(!body) return;
         let eyelashes = this.model.getObjectByName("Eyelashes");
         let mt = body.morphTargetDictionary;
+
+        if(blends["LeftEyeYaw"] == null);
+        {
+            blends["LeftEyeYaw"] = (blends["EyeLookOutLeft"] - blends["EyeLookInLeft"])/2;
+            blends["RightEyeYaw"] = - (blends["EyeLookOutRight"] - blends["EyeLookInRight"])/2;
+            blends["LeftEyePitch"] = (blends["EyeLookDownLeft"] - blends["EyeLookUpLeft"])/2;
+            blends["RightEyePitch"] = (blends["EyeLookDownRight"] - blends["EyeLookUpRight"])/2;
+        }
 
         for(let i in blends)
             {

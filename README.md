@@ -3,6 +3,8 @@
 
 A character animation tool utilizing different face tracking technologies.
 
+(Try the demo)[https://webglstudio.org/users/evalls/projects/face-motion-studio/]
+
 ## Face tracking options:
 - [Live Link Face](https://apps.apple.com/us/app/live-link-face/id1495370836)
 
