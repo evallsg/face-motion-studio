@@ -1,9 +1,11 @@
 import * as THREE from 'three'
+
 class GUI {
     constructor(map_names) {
         this.create();
         this.recording = false;
         this.mapNames = map_names;
+        this.settingsDialog = null;
     }
 
     create()
@@ -314,6 +316,45 @@ class GUI {
         return buttonContainer;
     }
 
+    createControls(app) {
+        
+        this.controls = document.getElementById("controls-container");
+        // this.controls.classList.remove("hidden");
+
+        let record = document.createElement("i");
+        record.className = "fa fa-play big-button";
+        let title = document.createElement("span");
+        title.innerText ="Record animation";
+        record.appendChild(title);
+        record.addEventListener("click", (v)=> {
+
+            if(record.classList.contains("fa-play")){
+                record.classList.remove("fa-play");
+                record.classList.add("fa-stop");
+                if(this.onStartRecord)
+                    this.onStartRecord();
+                }
+            else{
+                record.classList.remove("fa-stop");
+                record.classList.add("fa-play");
+                if(this.onStopRecord)
+                    this.onStopRecord();
+            }
+          
+        } )
+
+        let download = document.createElement("i");
+        download.className = "fa fa-file-export float button";
+        download.style.top = "-37px";
+        title.innerText ="Export";
+        download.appendChild(title);
+        download.addEventListener("click", this.onExport )
+
+        this.controls.appendChild(record);
+        this.controls.appendChild(download);
+
+    }
+
     createBlendShapesInspector(bsNames, inspector = null) {
         
         inspector = inspector || new LiteGUI.Inspector("capture-inspector");
@@ -386,9 +427,18 @@ class GUI {
     createPanel(app) {
 
         this.createIcons();
+        this.createControls(app);
         this.makeDraggableVideo();
-        //create the dialog paenel
-        var dialog = new LiteGUI.Dialog({id: "settings-panel",  title:"Settings", width: "fit-content", minWidth: 250, close: false, scroll: false, draggable: true, resizable: true});
+        //create the dialog panels
+        this.createSettingsDialog(app);
+        this.createInfoDialog(app);
+
+    }
+
+
+    createSettingsDialog(app) {
+
+        var dialog = this.settingsDialog = new LiteGUI.Dialog({id: "settings-panel",  title:"Settings", width: "100%", minWidth: 250, close: false, scroll: false, draggable: true, resizable: true});
     
         //add some widgets
         var widgets = new LiteGUI.Inspector({scroll:true, height: "inherit"});
@@ -422,7 +472,7 @@ class GUI {
         }})
 
         dialog = this.addChoice("Mode", ["Live", "Capture"], { value: app.mode == app.modes.LIVE ? "Live" : "Capture", callback: (v) => {
-            let buttons = document.getElementById("capture-buttons");
+            let buttons = document.getElementById("controls-container");
 
             if(v == "Live") {
                 app.mode = app.modes.LIVE;
@@ -434,7 +484,7 @@ class GUI {
                 if(buttons)
                     buttons.classList.remove("hidden");
                 else
-                    this.createCaptureButtons(dialog.content);
+                    this.createControls();//this.createCaptureButtons(dialog.content);
                 dialog.adjustSize();
             }
 
@@ -461,33 +511,52 @@ class GUI {
             app.model.rotation.z = v[2] * THREE.MathUtils.DEG2RAD;
         }});
         
-
-        //inspector = new LiteGUI.Inspector();
-        let section = inspector.addSection("Weights", {collapsed: true, height: "100%", callback: (v) =>{
-            if(v) {
-               // dialog.content.style.height = "calc(100% - 20px)";
-                section.children[1].style.display = "flex";
-                dialog.root.style.width = "fit-content";
-                dialog.root.style.height = "inherit";
-            }
-            else {
-                dialog.root.style.width = "auto";
-                dialog.adjustSize();
-            }
-            this.showBSInfo = v;
-        }});
-
-        section.style["margin-top"] = "10px";
-        //section.children[1].style.display = "flex";
-        section.children[1].style["flex-wrap"] =  "wrap";
-        inspector = this.createBlendShapesInspector(this.mapNames[app.character], inspector);
         inspector.root.hidden = false;
         dialog.add(inspector);
 
         //show and ensure the content fits
         dialog.show();
-        dialog.setPosition(10, 10);
+        dialog.setPosition(60,40);
         dialog.adjustSize();
+        dialog.hide();
+    }
+
+    createInfoDialog(app) {
+        //inspector = new LiteGUI.Inspector();
+        var infoDialog = this.infoDialog = new LiteGUI.Dialog({id: "info-panel",  title:"Weights", width: 500, minWidth: 250, close: false, scroll: false, draggable: true, resizable: true});
+        // let section = inspector.addSection("Weights", {collapsed: true, callback: (v) =>{
+        //     if(v) {
+        //        // dialog.content.style.height = "calc(100% - 20px)";
+        //         section.children[1].style.display = "flex";
+        //         dialog.root.style.width = "fit-content";
+        //         dialog.root.style.height = "inherit";
+        //         section.style.height = "40vh";
+        //         dialog.adjustSize();
+        //     }
+        //     else {
+        //         section.style.height = "auto";
+        //         dialog.root.style.width = "auto";
+        //         dialog.adjustSize();
+        //     }
+        //     this.showBSInfo = v;
+        // }});
+
+        // section.style["margin-top"] = "10px";
+        // //section.children[1].style.display = "flex";
+        // section.children[1].style["flex-wrap"] =  "wrap";
+        let inspect = this.createBlendShapesInspector(this.mapNames[app.character]);
+        inspect.root.style["margin-top"] = "10px";
+        inspect.root.style.display = "flex";
+        inspect.root.style["flex-wrap"] =  "wrap";
+        inspect.root.style.width = "auto";
+        inspect.root.style.height = "calc(100% - 60px)";
+        infoDialog.root.style.maxHeight = "80%";
+        inspect.root.style.overflow = "scroll";
+        infoDialog.add(inspect);
+        infoDialog.show();
+        infoDialog.setPosition(60,60);
+        infoDialog.adjustSize();
+        infoDialog.hide();
     }
 
     createIcons() {
@@ -500,24 +569,72 @@ class GUI {
         settings.appendChild(title);
         
         settings.addEventListener("click", (v) => {
-            let panel = document.getElementById("settings-panel");
-            if(panel.classList.contains("hidden")) {
-                panel.classList.remove("hidden");
+            if(!this.settingsDialog.visible) {
                 v.target.classList.add("active")
+                // this.settingsDialog.fadeIn(200);
+                // this.settingsDialog.root.classList.remove("hidden");
+                this.settingsDialog.display();
+                this.settingsDialog.root.classList.remove("fade-out");
+                this.settingsDialog.root.classList.add("fade-in");
             }
             else {
-                panel.classList.add("hidden");
                 v.target.classList.remove("active");
+                // this.settingsDialog.root.classList.add("hidden");
+                this.settingsDialog.root.classList.remove("fade-in");
+                this.settingsDialog.root.classList.add("fade-out");
+                setTimeout(() => {this.settingsDialog.hide()}, 480);
             }
+            // let panel = document.getElementById("settings-panel");
+            // if(panel.classList.contains("hidden")) {
+            //     v.target.classList.add("active")
+            //     panel.classList.remove("hidden");
+            //     panel.classList.remove("fade-out");
+            //     panel.classList.add("fade-in");
+            // }
+            // else {
+            //     v.target.classList.remove("active");
+            //     panel.classList.remove("fade-in");
+            //     panel.classList.add("hidden");
+            //     panel.classList.add("fade-out");
+            // }
         })
 
         buttonsContainer.appendChild(settings);
+
+        let info = document.createElement("i");
+        info.className = "fa fa-sliders button";
+        title = document.createElement("span");
+        title.innerText ="Show info";
+        title.style.top = "40px";
+        info.appendChild(title);
+        
+        info.addEventListener("click", (v) => {
+            if(!this.infoDialog.visible) {
+                v.target.classList.add("active")
+                // this.settingsDialog.fadeIn(200);
+                // this.settingsDialog.root.classList.remove("hidden");
+                this.infoDialog.display();
+                this.infoDialog.root.classList.remove("fade-out");
+                this.infoDialog.root.classList.add("fade-in");
+                this.showBSInfo = true;
+            }
+            else {
+                v.target.classList.remove("active");
+                // this.settingsDialog.root.classList.add("hidden");
+                this.infoDialog.root.classList.remove("fade-in");
+                this.infoDialog.root.classList.add("fade-out");
+                this.showBSInfo = false;
+                setTimeout(() => {this.infoDialog.hide()}, 470);
+            }
+        })
+
+        buttonsContainer.appendChild(info);
     }
 
 
     createExportPanel(callback) {
         //create the dialog paenel
-        var dialog = new LiteGUI.Dialog({title:"Export", width: "fit-content", close: false, scroll: false, draggable: true, resizable: true});
+        var dialog = new LiteGUI.Dialog({title:"Export", width: "fit-content", close: true, scroll: false, draggable: true, resizable: true});
             
         //add some widgets
         var widgets = new LiteGUI.Inspector({scroll:true, height: "inherit"});
@@ -538,10 +655,10 @@ class GUI {
 
     showAutomapDialog(map_names, blendshapes, callback) {
         //create the dialog paenel
-        var dialog = new LiteGUI.Dialog({title:"Map blendshapes", width: "fit-content", heigth: "calc(100% - 20px)", close: false, scroll: true, draggable: true, resizable: true});
-                    
+        var dialog = new LiteGUI.Dialog({title:"Map blendshapes", width: "calc(80% - 10px)", heigth: "calc(100% - 20px)", close: false, scroll: true, draggable: true, resizable: true});
+        dialog.root.style.width = "calc(80% - 10px)";
         //add some widgets
-        var widgets = new LiteGUI.Inspector({scroll: true, width: "calc(100% - 100px)", height: "calc(100% - 40px)"});
+        var widgets = new LiteGUI.Inspector({scroll: true, width: "calc(100% - 20px)", height: "calc(100% - 60px)"});
         widgets.root.style.display = "flex";
         widgets.root.style["flex-wrap"] = "wrap";
 
@@ -551,14 +668,15 @@ class GUI {
             }});
         }
 
-        dialog.addButton("Save", { close: true, callback: (v) => {
+        let btn = dialog.addButton("Save", { close: true, callback: (v) => {
             if(callback)
                 callback(map_names);
         }});
+        btn.style.fontSize = "small";
         dialog.add(widgets);
-        dialog.show();
-        dialog.setPosition(10, 10);
+        dialog.setPosition(20, 20);
         dialog.adjustSize();
+        dialog.show();
     }
 
     makeDraggableVideo() {
@@ -620,6 +738,18 @@ function dragElement(elmnt) {
     // stop moving when mouse button is released:
     document.onmouseup = null;
     document.onmousemove = null;
+  }
+
+  LiteGUI.Dialog.prototype.hide = function() {
+    this.visible = false;
+    this.root.classList.add("hidden");
+  }
+
+  LiteGUI.Dialog.prototype.display = function() {
+    this.visible = true;
+    this.root.classList.remove("hidden");
+
+    setTimeout(()=> { this.root.classList.remove("fade-in")}, 5000)
   }
 }
 export {GUI}

@@ -67,6 +67,7 @@ class App {
         this.gui = new GUI(MapNames.default.map_llnames);
         this.gui.onStartRecord = this.startRecord.bind(this);
         this.gui.onStopRecord = this.stopRecord.bind(this);
+        this.gui.onExport = this.processWeights.bind(this);
         
         this.modes = {LIVE : 0, CAPTURE : 1};
         this.mode = this.modes.LIVE;
@@ -125,7 +126,7 @@ class App {
         }
     }
 
-    async initMediapipe() {
+    async initMediapipe(callback) {
 
         this.video = document.getElementById("input-video");
         const filesetResolver = await FilesetResolver.forVisionTasks(
@@ -155,7 +156,7 @@ class App {
             });
         
        
-            this.mediaDevicesSupported(video, ()=> { }, (err) => {
+            this.mediaDevicesSupported(video, callback, (err) => {
                 if(!err)
                     err = "This app is not supported in your browser";
                 console.error(err);
@@ -195,7 +196,18 @@ class App {
                 this.initServer();
             }
             else {
-                await this.initMediapipe();
+                await this.initMediapipe( () => {
+                    if(data.mode == "Record")
+                    {
+                        this.mode = app.modes.CAPTURE;
+                        this.initRecord();
+                    }
+                    else{
+                        this.mode = app.modes.LIVE;
+                        this.initLive();
+                    }
+                });
+                return;
             }
 
 
@@ -230,7 +242,7 @@ class App {
         });
     
         // this.update(0);
-        this.onSceneLoaded = (v) => { this.processWeights(); this.gui.createExportPanel(this.export.bind(this))};
+        this.onSceneLoaded = this.onExport;
     }
     
     async mediaDevicesSupported(video, callback, on_error) {
@@ -518,7 +530,8 @@ class App {
 
     createAnimation() {
 
-        this.loadScene();
+        if(!this.scene)
+            this.loadScene();
         
     }
 
@@ -574,9 +587,10 @@ class App {
 
         this.gui.update(packet);
 
-        if(this.model && !this.isRecording)
+        if(this.model)
             this.animate(delta);
-        else if(packet) {
+            
+        if(packet && this.isRecording) {
             this.bsData.dt.push(delta)
             
             this.bsData.weights.push(packet.blends);
@@ -598,7 +612,7 @@ class App {
 
         // if(this.mixer && this.mixer._actions.length)
         //     this.mixer.update(delta);
-        if(this.mode == app.modes.LIVE && packet){
+        if(packet && (this.mode == app.modes.LIVE || this.mode == app.modes.CAPTURE && this.isRecording)){
             this.applyWeights(packet.blends);
         }
 
@@ -822,7 +836,7 @@ class App {
         // play animation
         this.mixer = new THREE.AnimationMixer( this.model );
         this.mixer.clipAction(this.clipAnimation).setEffectiveWeight( 1.0 ).play();
-
+        this.gui.createExportPanel(this.export.bind(this))
           
     }
 
@@ -935,7 +949,7 @@ class App {
                     }
                 }
               
-            }   
+            } 
     }
 
     autoMapBlendhsapes(blendshapes) {

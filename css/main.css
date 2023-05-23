@@ -256,6 +256,10 @@ canvas {
     /* height: 100%;*/
 }
 
+.inspector .widget {
+    padding: 2px;
+}
+
 /* Capture animation */
 .border-animation{
 	border: solid var(--global-color-highlight);
@@ -282,13 +286,23 @@ canvas {
     width: inherit;
 }
 
-.right-container {
+.left-container {
     position: absolute;
     top: 0;
+    left: 0;
+    margin: 20px;
+}
+
+.right-container {
+    position: absolute;
     right: 0;
     margin: 20px;
 }
 
+.bottom-container {
+    position: absolute;
+    bottom: 0;
+}
 i.button {
     font-size: 17px;
     color: #fff;
@@ -299,20 +313,34 @@ i.button {
     margin: 5px;
 }
 
-i.button.active {
+i.big-button {
+    font-size: 40px;
+    color: #fff;
+    background: var(--global-color-primary);
+    border-radius: 40px;
+    padding: 10px 16px;
+    cursor: pointer;
+    margin: 5px;
+}
+
+i.float {
+    position: absolute;
+}
+i.button.active, i.big-button.active {
     background: #fdfdfd8c!important;
 }
 
 i.button span {
     display: none;
 }
+
 i.button:hover span {
     /* border: #666 2px dotted; */
     padding: 5px;
     display: block;
     z-index: 100;
     background: #e3e3e3;
-    right: 0px;
+
     margin: 3px 40px;
     width: 100px;
     position: absolute;
@@ -324,3 +352,71 @@ i.button:hover span {
     border-radius: 5px;
     color: var(--global-text-color);
 }
+
+.right-container i.button:hover span {
+    right: 0px;
+}
+
+.left-container i.button:hover span {
+    left: 0px;
+}
+
+.controls {
+    width: 100px;
+    height: 100px;
+    background: #ffffff4f;
+    border-radius: 100px;
+}
+
+
+
+.litedialog.fade-in{
+    animation-name: fadein;
+    animation-duration: 0.5s;
+}
+
+.litedialog.fade-out{
+    animation-name: fadeout;
+    animation-duration: 0.5s;
+}
+
+@keyframes fadein {
+    from {
+      margin-top: -1%;
+      opacity: 0%;
+      height: 0%;
+    }
+  
+    75% {
+      margin-top: 0.2%;
+      opacity: 75%;
+
+    }
+  
+    to {
+      margin-top: 0%;
+      opacity: 100%;
+    }
+  }
+
+  @keyframes fadeout {
+    from {
+      margin-top: 0%;
+      opacity: 100%;
+    }
+  
+    75% {
+      margin-top: 0.1%;
+      opacity: 25%;
+    }
+  
+    to {
+      margin-top: -1%;
+      opacity: 0%;
+      height: 0%;
+    }
+  }
+
+  i.fa-stop{
+    background-color:#e41749
+  }
