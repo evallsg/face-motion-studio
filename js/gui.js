@@ -325,27 +325,32 @@ class GUI {
         record.className = "fa fa-play big-button";
         let title = document.createElement("span");
         title.innerText ="Record animation";
+
+        let download = document.createElement("i");
+        download.className = "fa fa-file-export float button";
+        download.style.top = "-37px";
+        
         record.appendChild(title);
         record.addEventListener("click", (v)=> {
 
             if(record.classList.contains("fa-play")){
                 record.classList.remove("fa-play");
                 record.classList.add("fa-stop");
+                download.classList.add("hidden");
                 if(this.onStartRecord)
                     this.onStartRecord();
                 }
             else{
                 record.classList.remove("fa-stop");
                 record.classList.add("fa-play");
+                download.classList.remove("hidden");
                 if(this.onStopRecord)
                     this.onStopRecord();
             }
           
         } )
 
-        let download = document.createElement("i");
-        download.className = "fa fa-file-export float button";
-        download.style.top = "-37px";
+        
         title.innerText ="Export";
         download.appendChild(title);
         download.addEventListener("click", this.onExport )

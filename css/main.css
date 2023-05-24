@@ -330,11 +330,11 @@ i.button.active, i.big-button.active {
     background: #fdfdfd8c!important;
 }
 
-i.button span {
+i.button span, i.big-button span  {
     display: none;
 }
 
-i.button:hover span {
+i.button:hover span, i.big-button:hover span {
     /* border: #666 2px dotted; */
     padding: 5px;
     display: block;
@@ -353,11 +353,11 @@ i.button:hover span {
     color: var(--global-text-color);
 }
 
-.right-container i.button:hover span {
+.right-container i.button:hover span, .right-container i.big-button:hover span {
     right: 0px;
 }
 
-.left-container i.button:hover span {
+.left-container i.button:hover span, .left-container i.big-button:hover span {
     left: 0px;
 }
 

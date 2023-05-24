@@ -461,6 +461,7 @@ class App {
                         object.material.side = THREE.DoubleSide;
                         object.castShadow = false;
                         object.material.emissiveIntensity = 0;
+                        
                     }
                     if(object.material.map) object.material.map.anisotropy = 16; 
                     if(object.morphTargetDictionary) {
@@ -469,6 +470,7 @@ class App {
                             blendshapes = [...blendshapes, ...Object.keys(object.morphTargetDictionary)];
                     }
                     object.material.environment = this.hdrTexture;
+                    object.material.iridescence = object.material.iridescence || 0;
                 } else if (object.isBone) object.scale.set(1.0, 1.0, 1.0);
             });    
 
@@ -1002,7 +1004,7 @@ class App {
                 for(let i = 0; i < this.mixer._actions.length; i++) {
                     options.animations.push(this.mixer._actions[i]._clip);
                 }
-                let model = this.mixer._root.getChildByName('Armature');
+                let model = this.mixer._root.getChildByName('Armature') || this.scene.getObjectByName(this.character);
                 options.filename = filename;
                 Exporter.exportGLB(model, { options })
                 

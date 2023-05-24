@@ -327,7 +327,7 @@ const Exporter = {
         gltfExporter.parse(data, 
             ( gltf ) => Exporter.download(gltf, filename+'.glb', 'arraybuffer' ), // called when the gltf has been generated
             ( error ) => { console.log( 'An error happened:', error ); }, // called when there is an error in the generation
-            options
+            options.options
         );
     }
 };
