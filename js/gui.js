@@ -375,7 +375,7 @@ class GUI {
             let progressVar = document.createElement('div');
             progressVar.className = "progress mb-3";
             progressVar.innerHTML = 
-            '<div id="progressbar-' + name + '" class="progress-bar bg-danger" role="progressbar" style="width: 50%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>'
+            '<div id="progressbar-' + name + '" class="progress-bar bg-danger" role="progressbar" style="width: 0%" aria-valuenow="15" aria-valuemin="0" aria-valuemax="100"></div>'
           
             info.appendChild(progressVar);
         }
@@ -448,33 +448,50 @@ class GUI {
         //add some widgets
         var widgets = new LiteGUI.Inspector({scroll:true, height: "inherit"});
         dialog.add(widgets);
-        
-        //fill the widgets
-        if(app.approach == app.approaches.LIVELINK) {
+        widgets.onRefresh = () => {
 
-            widgets.addString("Device", app.device, {callback: (v) => {
-                app.device = v;
+            widgets.clear();
+            //fill the widgets
+            if(app.approach == app.approaches.LIVELINK) {
+
+                widgets.addString("Device", app.device, {callback: (v) => {
+                    app.device = v;
+                } });
+            }
+
+            widgets.addCheckbox("Show Video", this.showVideo, { callback: (v) => {
+                this.showVideo = v;
+                let e = document.getElementById("capture");
+
+                if(this.showVideo)
+                    e.classList.remove("hidden");
+                else
+                    e.classList.add("hidden");
+            }})
+
+            widgets.addCombo("Character", app.character, {values: Object.keys(app.characters), callback: (v) => {
+                app.character = v;
+                app.loadCharacter();
+                widgets.onRefresh();
             } });
+            
+            widgets.addCheckbox("Apply head rotation", app.applyRotation, { callback: (v) => {
+                app.applyRotation = v;
+            }});
+
+            if(app.character == "EVA") {
+                
+                widgets.addCheckbox("Apply idle", app.playIdle, { callback: (v) => {
+                    app.playIdle = v;
+                    if(v)
+                        app.playBodyAnimation();
+                    else
+                        app.stopBodyAnimation();
+                }});
+            }
         }
 
-        widgets.addCheckbox("Show Video", this.showVideo, { callback: (v) => {
-            this.showVideo = v;
-            let e = document.getElementById("capture");
-
-            if(this.showVideo)
-                e.classList.remove("hidden");
-            else
-                e.classList.add("hidden");
-        }})
-
-        widgets.addCombo("Character", app.character, {values: Object.keys(app.characters), callback: (v) => {
-            app.character = v;
-            app.loadCharacter();
-        } });
-        
-        widgets.addCheckbox("Apply head rotation", app.applyRotation, { callback: (v) => {
-            app.applyRotation = v;
-        }})
+        widgets.onRefresh();
 
         dialog = this.addChoice("Mode", ["Live", "Capture"], { value: app.mode == app.modes.LIVE ? "Live" : "Capture", callback: (v) => {
             let buttons = document.getElementById("controls-container");

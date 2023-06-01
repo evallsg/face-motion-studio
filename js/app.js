@@ -76,9 +76,12 @@ class App {
         this.approach = this.approaches.MEDIAPIPE;
 
         this.character = "EVA";
-        this.characters = {EVA : "./data/meshes/eva.glb", CLEO : "./data/meshes/cleo_with_body.glb"};
+        this.characters = {EVA : "./data/meshes/Eva_Y.glb", CLEO : "./data/meshes/cleo_with_body.glb"};
+        this.skinnedMeshes = {};
 
         this.applyRotation = false;
+        this.bodyAnimation = null;
+        this.playIdle = true;
 
         this.server = null;
         this.device = "iPhone";
@@ -426,6 +429,7 @@ class App {
                     if(character) {
                         allLoaded = true;
                         character.visible = true;
+                        // this.model = character;
                     }
                     else
                         allLoaded = false;
@@ -445,10 +449,11 @@ class App {
 
             this.model = glb.scene;
             this.model.name = this.character;
-            this.model.rotateOnAxis (new THREE.Vector3(1,0,0), -Math.PI/2);
+            if(this.character == "CLEO")
+                this.model.rotateOnAxis (new THREE.Vector3(1,0,0), -Math.PI/2);
             //this.model.position.set(0, 0.75, 0);
             //this.model.scale.set(8.0, 8.0, 8.0);
-            this.skinnedMeshes = [];
+            this.skinnedMeshes[this.character] = [];
             let blendshapes = [];
 
             this.model.traverse( object => {
@@ -465,7 +470,7 @@ class App {
                     }
                     if(object.material.map) object.material.map.anisotropy = 16; 
                     if(object.morphTargetDictionary) {
-                        this.skinnedMeshes.push(object);
+                        this.skinnedMeshes[this.character].push(object);
                         if(automap)
                             blendshapes = [...blendshapes, ...Object.keys(object.morphTargetDictionary)];
                     }
@@ -499,21 +504,36 @@ class App {
 
             }
   
-            // this.mixer = new THREE.AnimationMixer( this.model );
-            // this.loaderGLB.load( './data/anim/idle.glb', (glb) => {
-
-            //     const clip = glb.animations[0];
-            //     // Play a specific animation
-            //     const action = this.mixer.clipAction( clip );
-            //     action.play();  
-            //  }, ()=>{
-            //     this.animate();
-
-            //     $('#loading').fadeOut();
-            // })
+            if(this.character == "EVA") {
+                
+                this.mixer = new THREE.AnimationMixer( this.model );
+                this.loaderGLB.load( './data/anim/idle.glb', (glb) => {
+    
+                    const clip = glb.animations[0];
+                    
+                    // Play a specific animation
+                    this.bodyAnimation = this.mixer.clipAction( clip );
+                    this.bodyAnimation.timeScale = 0.3;
+                    this.bodyAnimation.play();  
+                 }, ()=>{
+                    this.animate();
+    
+                    $('#loading').fadeOut();
+                })
+            }
 
 
         } );  
+    }
+
+    playBodyAnimation() {
+        this.model.rotation.x = 0;
+        this.bodyAnimation.play();
+    }
+
+    stopBodyAnimation() {
+        this.bodyAnimation.stop();
+        this.model.rotateOnAxis(new THREE.Vector3(1,0,0), -Math.PI/2)
     }
 
     startRecord() {
@@ -546,7 +566,7 @@ class App {
             const results = this.faceLandmarker.detectForVideo( this.video, Date.now() );
             if ( results.faceBlendshapes.length > 0  ) {
 
-                const faceBlendshapes = results.faceBlendshapes[ 0 ].categories;;
+                const faceBlendshapes = results.faceBlendshapes[ 0 ].categories;
                 packet = { blends: {}};
                 for ( const blendshape of faceBlendshapes ) {
 
@@ -618,7 +638,7 @@ class App {
             this.applyWeights(packet.blends);
         }
 
-        else if(this.mode == app.modes.CAPTURE && this.mixer)
+        if(this.mixer)
             this.mixer.update(delta);
         this.renderer.render( this.scene, this.camera );
     }
@@ -626,8 +646,9 @@ class App {
     processWeights() {
 
         let body = this.model.getObjectByName("Body") ||  this.model.getObjectByName("Head");
-        let eyelashes = this.model.getObjectByName("Eyelashes");
-        let mt = body.morphTargetDictionary;
+        if(!body || !this.skinnedMeshes[this.character]) return;
+        
+        this.skinnedMeshes[this.character].map(x => x.morphTargetInfluences.fill(0));
 
         let clipData = {};
         let times = [];
@@ -815,7 +836,7 @@ class App {
             else
             {
                 
-                for(let mesh of this.skinnedMeshes)
+                for(let mesh of this.skinnedMeshes[this.character])
                 {
                     let mt_idx = mesh.morphTargetDictionary[bs]
                     if(mt_idx>-1)
@@ -835,8 +856,7 @@ class App {
         const length = -1;
 
         this.clipAnimation = new THREE.AnimationClip("liveLinkAnim", length, tracks);
-        // play animation
-        this.mixer = new THREE.AnimationMixer( this.model );
+
         this.mixer.clipAction(this.clipAnimation).setEffectiveWeight( 1.0 ).play();
         this.gui.createExportPanel(this.export.bind(this))
           
@@ -845,10 +865,9 @@ class App {
     applyWeights(blends) {
 
         let body = this.model.getObjectByName("Body") || this.model.getObjectByName("Head");
-        if(!body) return;
-        let eyelashes = this.model.getObjectByName("Eyelashes");
-        let mt = body.morphTargetDictionary;
-
+        if(!body || !this.skinnedMeshes[this.character]) return;
+        
+        this.skinnedMeshes[this.character].map(x => x.morphTargetInfluences.fill(0));
         for(let i in blends)
             {
                 var value = blends[i];
@@ -929,10 +948,10 @@ class App {
                         continue;
                 }
                 else if (typeof(map) == 'string'){
-                    for(let mesh of this.skinnedMeshes)
+                    for(let mesh of this.skinnedMeshes[this.character])
                     {
                         let mt_idx = mesh.morphTargetDictionary[map]
-                        mesh.morphTargetInfluences[mt_idx] = value;
+                        mesh.morphTargetInfluences[mt_idx] = Math.max(mesh.morphTargetInfluences[mt_idx], value);
 
                     }
                     // body.morphTargetInfluences[mt[map]] = value;
@@ -940,10 +959,10 @@ class App {
                 }
                 else if( typeof(map) == 'object'){
                     for(let j = 0; j < map.length; j++){
-                        for(let mesh of this.skinnedMeshes)
+                        for(let mesh of this.skinnedMeshes[this.character])
                         {
                             let mt_idx = mesh.morphTargetDictionary[map[j]]
-                            mesh.morphTargetInfluences[mt_idx] = value;
+                            mesh.morphTargetInfluences[mt_idx] = Math.max(mesh.morphTargetInfluences[mt_idx], value);
 
                         }
                         // body.morphTargetInfluences[mt[map[j]]] = value; 
@@ -1010,7 +1029,7 @@ class App {
                 
                 break;
             case 'BVH extended':
-                Exporter.exportMorphTargets(this.mixer._actions[0], this.skinnedMeshes, this.mixer._actions[0]._clip, null, filename);
+                Exporter.exportMorphTargets(this.mixer._actions[0], this.skinnedMeshes[this.character], this.mixer._actions[0]._clip, null, filename);
                 break;
             default:
                 console.log(type + " ANIMATION EXPORTATION IS NOT YET SUPPORTED");
